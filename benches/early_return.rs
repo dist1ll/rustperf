@@ -27,12 +27,27 @@ fn full_scan(a: &[u32]) -> bool {
     }
     result
 }
+fn hybrid(a: &[u32]) -> bool {
+    for x in 0..(a.len() / 16) {
+        let mut result = false;
+        for i in 0..16 {
+            if a[x * 16 + i] == 0 {
+                result = true;
+            }
+        }
+        if result { return true; }
+    }
+    false
+}
+fn contains(a: &[u32]) -> bool {
+    a.contains(&0)
+}
 
 fn criterion_benchmark(c: &mut Criterion) {
-    let count = 256;
+    let count = 1024;
     let mut arr = Vec::with_capacity(count);
     for i in 0..count {
-        if i == 30 {
+        if i == 10 {
             arr.push(0);
         } else {
             arr.push(1);
@@ -47,6 +62,16 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("full_scan", |b| {
         b.iter(|| {
             black_box(full_scan(arr.as_slice()));
+        })
+    });
+    c.bench_function("stdlib_contains", |b| {
+        b.iter(|| {
+            black_box(contains(arr.as_slice()));
+        })
+    });
+    c.bench_function("hybrid", |b| {
+        b.iter(|| {
+            black_box(hybrid(arr.as_slice()));
         })
     });
 }
