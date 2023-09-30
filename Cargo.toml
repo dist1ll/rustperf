@@ -1,0 +1,41 @@
+[package]
+name = "rust-perf"
+version = "0.1.0"
+edition = "2021"
+
+[dev-dependencies]
+criterion = "0.5"
+rand = "0.8"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bench]]
+name = "trait_objects"
+test = false
+
+[[bench]]
+name = "owned_from"
+test = false
+
+[[bench]]
+name = "generic_iterators"
+test = false
+
+[[bench]]
+name = "realloc"
+test = false
+
+[[bench]]
+name = "remove_keys"
+test = false
+
+[[bench]]
+name = "packed_enums"
+test = false
+
+[[bench]]
+name = "early_return"
+test = false
+harness = false
+
+[dependencies]
+

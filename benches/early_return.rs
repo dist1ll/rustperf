@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) Adrian Alic <contact@alic.dev>
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+use std::time::Duration;
+
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+
+fn early_return(a: &[u32]) -> bool {
+    for x in a {
+        if *x == 0 {
+            return true;
+        }
+    }
+    false
+}
+fn full_scan(a: &[u32]) -> bool {
+    let mut result = false;
+    for x in a {
+        if *x == 0 {
+            result = true;
+        }
+    }
+    result
+}
+
+fn criterion_benchmark(c: &mut Criterion) {
+    let count = 256;
+    let mut arr = Vec::with_capacity(count);
+    for i in 0..count {
+        if i == 30 {
+            arr.push(0);
+        } else {
+            arr.push(1);
+        }
+    }
+
+    c.bench_function("early_return", |b| {
+        b.iter(|| {
+            black_box(early_return(arr.as_slice()));
+        })
+    });
+    c.bench_function("full_scan", |b| {
+        b.iter(|| {
+            black_box(full_scan(arr.as_slice()));
+        })
+    });
+}
+
+criterion_group! {
+    name = benches;
+    config = Criterion::default()
+        .warm_up_time(Duration::from_millis(400))
+        .sample_size(50);
+    targets = criterion_benchmark
+}
+criterion_main!(benches);
+
+// #[bench]
+// fn full_scan(b: &mut Bencher) {
+//     #[inline(never)]
+//     fn _impl(a: &[u32]) -> bool {
+//         let mut result = false;
+//         for x in a {
+//             if *x == 0xfff {
+//                 result = true;
+//             }
+//         }
+//         result
+//     }
+//     let arr: [u32; 0xffff] = std::array::from_fn(|i| i as u32);
+//     b.iter(|| {
+//         let mut result = _impl(&arr);
+//         black_box(&mut result);
+//     });
+// }
