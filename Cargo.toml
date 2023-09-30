@@ -29,10 +29,6 @@ name = "remove_keys"
 test = false
 
 [[bench]]
-name = "packed_enums"
-test = false
-
-[[bench]]
 name = "early_return"
 test = false
 harness = false
