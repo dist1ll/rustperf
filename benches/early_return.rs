@@ -6,9 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use std::time::Duration;
+use std::{collections::HashSet, time::Duration};
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use rustc_hash::FxHashSet;
 
 fn early_return(a: &[u32]) -> bool {
     for x in a {
@@ -35,24 +36,30 @@ fn hybrid(a: &[u32]) -> bool {
                 result = true;
             }
         }
-        if result { return true; }
+        if result {
+            return true;
+        }
     }
     false
 }
 fn contains(a: &[u32]) -> bool {
     a.contains(&0)
 }
+fn contains_hash(m: &FxHashSet<u32>) -> bool {
+    m.contains(&0)
+}
 
 fn criterion_benchmark(c: &mut Criterion) {
     let count = 1024;
     let mut arr = Vec::with_capacity(count);
     for i in 0..count {
-        if i == 10 {
+        if i == 20 {
             arr.push(0);
         } else {
-            arr.push(1);
+            arr.push(i as u32 + 1);
         }
     }
+    let hset: FxHashSet<u32> = arr.iter().cloned().collect();
 
     c.bench_function("early_return", |b| {
         b.iter(|| {
@@ -67,6 +74,11 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("stdlib_contains", |b| {
         b.iter(|| {
             black_box(contains(arr.as_slice()));
+        })
+    });
+    c.bench_function("contains_set", |b| {
+        b.iter(|| {
+            black_box(contains_hash(&hset));
         })
     });
     c.bench_function("hybrid", |b| {
